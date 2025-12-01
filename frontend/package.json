@@ -1,0 +1,24 @@
+{
+  "name": "personallearn-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "14.2.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.11.30",
+    "@types/react": "18.2.75",
+    "@types/react-dom": "18.2.24",
+    "autoprefixer": "10.4.19",
+    "postcss": "8.4.35",
+    "typescript": "5.4.5"
+  }
+}

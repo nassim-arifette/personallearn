@@ -1,0 +1,85 @@
+# PersonalLearn .gitignore
+# ---------------------
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+pip-wheel-metadata/
+.python-version
+venv/
+.venv/
+env/
+ENV/
+venv.bak/
+
+# Virtualenv created by various tools
+.env
+.env.*
+Pipfile.lock
+
+# Byte-compiled / build
+*.pyc
+*.pyo
+*.pyd
+
+# Distribution / packaging
+*.egg
+*.egg-info
+*.whl
+
+# Pytest
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# JetBrains
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+
+# Generated PDFs (course exports)
+*.pdf
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Frontend build artifacts
+/frontend/node_modules/
+frontend/.next/
+frontend/.turbo/
+frontend/.vercel/
+frontend/out/
+frontend/dist/
+frontend/build/
+
+# Coverage
+.coverage
+htmlcov/
+
+# Installer
+*.manifest
+*.spec
+
+# Misc
+pip-log.txt
+__pypackages__/
