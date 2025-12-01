@@ -10,27 +10,32 @@ export type CourseUnit = {
   objective: string;
 };
 
+export type QuizQuestion = {
+  prompt: string;
+  options: string[];
+};
+
 export const features: FeatureCard[] = [
   {
     title: "Focus",
     description: "Pinpoint attention patterns and keep your sessions sharp.",
-    icon: "🧠"
+    icon: "🎯"
   },
   {
     title: "Adapt",
     description: "Content that flexes with your rhythm and energy.",
-    icon: "⏱️"
+    icon: "🧠"
   },
   {
     title: "Dynamic Content",
     description: "Micro-units surface at the right moment for retention.",
-    icon: "⚙️"
+    icon: "⚡"
   }
 ];
 
 export const profileTraits: FeatureCard[] = [
-  { title: "Intermediate Level", description: "Tailored rigor", icon: "🎯" },
-  { title: "7 Units", description: "Balanced cadence", icon: "🧱" },
+  { title: "Intermediate Level", description: "Tailored rigor", icon: "📚" },
+  { title: "7 Units", description: "Balanced cadence", icon: "🗂️" },
   { title: "Balanced Complexity", description: "Concept first", icon: "🧭" }
 ];
 
@@ -61,4 +66,17 @@ export const courseUnits: CourseUnit[] = [
   }
 ];
 
-export const quizOptions = ["18", "24", "30", "32"];
+export const quizQuestions: QuizQuestion[] = [
+  {
+    prompt: "Sequence: 2, 4, 8, 16... Next?",
+    options: ["18", "24", "30", "32"]
+  },
+  {
+    prompt: "Choose the pair that best completes the analogy: Neuron is to brain as pixel is to ___",
+    options: ["Monitor", "Image", "Color", "Cable"]
+  },
+  {
+    prompt: "Pick the strongest indicator of focused study habits:",
+    options: ["Long sessions without breaks", "Regular spaced reviews", "All-night cramming", "Reading without notes"]
+  }
+];

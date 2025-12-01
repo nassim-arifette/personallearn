@@ -18,25 +18,45 @@ export function GradientButton({
   children,
   ghost = false,
   href,
+  onClick,
+  disabled = false,
+  type = "button",
 }: {
   children: React.ReactNode;
   ghost?: boolean;
   href?: string;
+  onClick?: () => void;
+  disabled?: boolean;
+  type?: "button" | "submit" | "reset";
 }) {
-  const className = ghost ? "btn ghost" : "btn primary";
+  const className = `${ghost ? "btn ghost" : "btn primary"} ${disabled ? "disabled" : ""}`;
   if (href) {
     return (
-      <Link href={href} className={`${className} link-btn`}>
+      <Link
+        href={href}
+        className={`${className} link-btn`}
+        aria-disabled={disabled}
+        tabIndex={disabled ? -1 : undefined}
+      >
         {children}
       </Link>
     );
   }
-  return <button className={className}>{children}</button>;
+  return (
+    <button className={className} onClick={onClick} disabled={disabled} type={type}>
+      {children}
+    </button>
+  );
 }
 
 export function TopBar({ showNav = true }: { showNav?: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
+
+  const isActive = (href: string) =>
+    pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
+
+  const navLinkClass = (href: string) => `nav-link ${isActive(href) ? "active" : ""}`;
 
   useEffect(() => {
     setMenuOpen(false);
@@ -71,10 +91,18 @@ export function TopBar({ showNav = true }: { showNav?: boolean }) {
               <span className="menu-label">Menu</span>
             </button>
             <nav id="primary-nav" className={`nav-links ${menuOpen ? "open" : ""}`}>
-              <Link href="/">Step 1 - Landing</Link>
-              <Link href="/quiz">Step 2 - Quiz</Link>
-              <Link href="/profile">Step 3 - Profile</Link>
-              <Link href="/results">Step 4 - Results</Link>
+              <Link href="/" className={navLinkClass("/")}>
+                Step 1 - Landing
+              </Link>
+              <Link href="/quiz" className={navLinkClass("/quiz")}>
+                Step 2 - Quiz
+              </Link>
+              <Link href="/profile" className={navLinkClass("/profile")}>
+                Step 3 - Profile
+              </Link>
+              <Link href="/results" className={navLinkClass("/results")}>
+                Step 4 - Results
+              </Link>
             </nav>
           </>
         )}

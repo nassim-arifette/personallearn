@@ -29,7 +29,7 @@ export default function ResultsPage() {
 
       <main className="content">
         <GlassCard className="panel">
-          <p className="eyebrow">Step 4 · Course Blueprint</p>
+          <p className="eyebrow">Step 4 - Course Blueprint</p>
           <h2>Introduction to Cognitive Science</h2>
           <p className="muted">
             A foundational course adapted for intermediate learners, focusing on attention,
