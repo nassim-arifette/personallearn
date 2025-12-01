@@ -5,6 +5,7 @@ from typing import Optional
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from .data import QUESTIONS
 from .schemas import CourseResponse, ProfileRequest, ProfileResponse
@@ -15,6 +16,15 @@ app = FastAPI(
     title="PersonalLearn Backend",
     description="API surface that mirrors the Streamlit backend features.",
     version="0.1.0",
+)
+
+# Allow browser preflight requests from any origin (adjust as needed for production).
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
