@@ -115,9 +115,9 @@ export default function ProfilePage() {
   };
 
   const derivedTraits = [
-    { title: profile?.desc || "Balanced", description: "Profile", icon: "Profile" },
-    { title: `${profile?.units || 7} Units`, description: "Segmentation", icon: "Units" },
-    { title: profile?.level || "Intermediate", description: "Complexity", icon: "Level" },
+    { title: profile?.desc || "Balanced", description: "Profile", icon: "🧭" },
+    { title: `${profile?.units || 7} Units`, description: "Segmentation", icon: "📦" },
+    { title: profile?.level || "Intermediate", description: "Complexity", icon: "⚖️" },
   ];
 
   return (

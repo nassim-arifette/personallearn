@@ -11,6 +11,7 @@ type CourseUnit = {
   description?: string;
   objectives?: string[];
   objective?: string;
+  icon?: string;
 };
 
 type CoursePayload = {
@@ -124,7 +125,7 @@ export default function ResultsPage() {
         <div className="unit-list">
           {course.units.map((unit) => (
             <GlassCard key={unit.title} className="unit-card">
-              <div className="icon">Unit</div>
+              <div className="icon">{unit.icon || "📘"}</div>
               <div>
                 <p className="card-title">{unit.title}</p>
                 <p className="muted">{unit.description || unit.content?.slice(0, 260)}</p>
