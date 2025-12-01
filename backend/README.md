@@ -5,7 +5,7 @@ This backend mirrors the Streamlit logic as a reusable API surface.
 ## Setup
 - Create and activate a virtualenv.
 - Install dependencies: `pip install -r backend/requirements.txt`
-- Set your Gemini key: `export GEMINI_API_KEY=...`
+- Add your Gemini key in `.env`: `GEMINI_API_KEY=...` (auto-loaded via `python-dotenv`)
 
 ## Run
 - Start the API from the repo root: `uvicorn backend.main:app --reload`

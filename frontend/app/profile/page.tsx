@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { GradientButton, GlassCard, TopBar } from "../components/ui";
-import { profileTraits } from "../lib/content";
+import { createCourse, ProfileResponse } from "../lib/api";
 
 type Theme = "dark" | "light";
+type StoredProfile = { profile: ProfileResponse; score: number; durationSeconds: number };
 
 export default function ProfilePage() {
   const [theme, setTheme] = useState<Theme>("dark");
@@ -12,11 +14,26 @@ export default function ProfilePage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [profile, setProfile] = useState<ProfileResponse | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = localStorage.getItem("personalLearnProfile");
+    if (!raw) return;
+    try {
+      const parsed: StoredProfile = JSON.parse(raw);
+      setProfile(parsed.profile);
+    } catch {
+      // ignore parse errors and fall back to defaults
+    }
+  }, []);
 
   const toggleTheme = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));
 
@@ -64,6 +81,45 @@ export default function ProfilePage() {
     event.target.value = "";
   };
 
+  const handleGenerate = async () => {
+    if (!selectedFile) {
+      setUploadError("Please upload a PDF to continue.");
+      return;
+    }
+    setUploadError(null);
+    setIsSubmitting(true);
+    const courseTitleSafe = courseTitle.trim() || "My Adaptive Course";
+    const effectiveProfile: ProfileResponse =
+      profile || { level: "Intermediate", units: 7, desc: "Balanced", efficiency: 0 };
+    try {
+      const formData = new FormData();
+      formData.append("course_title", courseTitleSafe);
+      formData.append("level", effectiveProfile.level);
+      formData.append("units", String(effectiveProfile.units));
+      formData.append("include_pdf", "true");
+      formData.append("file", selectedFile);
+
+      const response = await createCourse(formData);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("personalLearnCourse", JSON.stringify(response.course));
+        if (response.course_pdf_base64) {
+          localStorage.setItem("personalLearnCoursePdf", response.course_pdf_base64);
+        }
+      }
+      router.push("/results");
+    } catch (err: any) {
+      setUploadError(err.message || "Failed to generate course. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const derivedTraits = [
+    { title: profile?.desc || "Balanced", description: "Profile", icon: "Profile" },
+    { title: `${profile?.units || 7} Units`, description: "Segmentation", icon: "Units" },
+    { title: profile?.level || "Intermediate", description: "Complexity", icon: "Level" },
+  ];
+
   return (
     <div className="page-shell">
       <div className="nebula nebula-a" />
@@ -81,7 +137,7 @@ export default function ProfilePage() {
           <p className="eyebrow">Step 3 - Profile</p>
           <h2>Your Cognitive Profile</h2>
           <div className="profile-grid">
-            {profileTraits.map((trait) => (
+            {derivedTraits.map((trait) => (
               <GlassCard key={trait.title} className="profile-card">
                 <div className="icon">{trait.icon}</div>
                 <div>
@@ -140,7 +196,9 @@ export default function ProfilePage() {
                 value={courseTitle}
                 onChange={(event) => setCourseTitle(event.target.value)}
               />
-              <GradientButton href="/results">Generate Adapted Course</GradientButton>
+              <GradientButton onClick={handleGenerate} disabled={isSubmitting}>
+                {isSubmitting ? "Generating..." : "Generate Adapted Course"}
+              </GradientButton>
             </div>
           </div>
         </GlassCard>

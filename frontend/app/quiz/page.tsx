@@ -3,25 +3,38 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { GradientButton, GlassCard, TopBar } from "../components/ui";
-import { quizQuestions } from "../lib/content";
+import { QuizQuestion } from "../lib/content";
+import { getQuizQuestions, submitProfile } from "../lib/api";
 
 type Theme = "dark" | "light";
 
 export default function QuizPage() {
   const [theme, setTheme] = useState<Theme>("dark");
-  const totalQuestions = quizQuestions.length;
+  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<(string | null)[]>(() =>
-    Array(totalQuestions).fill(null)
-  );
+  const [answers, setAnswers] = useState<string[]>([]);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const question = quizQuestions[currentQuestion];
-  const selectedOption = answers[currentQuestion];
-  const answeredCount = answers.filter(Boolean).length;
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    setStartTime(Date.now());
+    getQuizQuestions()
+      .then((qs) => {
+        setQuestions(qs);
+        setAnswers(Array(qs.length).fill(""));
+      })
+      .catch((err) => setError(err.message || "Failed to load questions"))
+      .finally(() => setLoading(false));
+  }, []);
 
   const toggleTheme = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));
 
@@ -33,11 +46,46 @@ export default function QuizPage() {
     });
   };
 
+  const totalQuestions = questions.length || 1;
+  const selectedOption = answers[currentQuestion];
+  const answeredCount = answers.filter(Boolean).length;
+  const progress = Math.round((answeredCount / totalQuestions) * 100);
+  const isLastQuestion = currentQuestion === totalQuestions - 1;
+
+  const computeScore = () =>
+    answers.reduce((acc, ans, idx) => {
+      const correct = questions[idx]?.correct;
+      if (ans && correct && ans === correct) return acc + 1;
+      return acc;
+    }, 0);
+
+  const finishQuiz = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const durationSeconds = startTime ? (Date.now() - startTime) / 1000 : 0;
+      const score = computeScore();
+      const profile = await submitProfile(score, durationSeconds);
+      if (typeof window !== "undefined") {
+        localStorage.setItem(
+          "personalLearnProfile",
+          JSON.stringify({ profile, score, durationSeconds })
+        );
+      }
+      router.push("/profile");
+    } catch (err: any) {
+      setError(err.message || "Failed to submit quiz.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleNext = () => {
     if (currentQuestion < totalQuestions - 1) {
       setCurrentQuestion((prev) => prev + 1);
     } else {
-      router.push("/profile");
+      finishQuiz();
     }
   };
 
@@ -50,8 +98,17 @@ export default function QuizPage() {
     setCurrentQuestion(index);
   };
 
-  const progress = Math.round((answeredCount / totalQuestions) * 100);
-  const isLastQuestion = currentQuestion === totalQuestions - 1;
+  if (loading) {
+    return (
+      <div className="page-shell">
+        <main className="content">
+          <GlassCard className="quiz-panel">Loading questions...</GlassCard>
+        </main>
+      </div>
+    );
+  }
+
+  const question = questions[currentQuestion];
 
   return (
     <div className="page-shell">
@@ -76,7 +133,7 @@ export default function QuizPage() {
             </div>
           </div>
           <div className="quiz-nav">
-            {quizQuestions.map((_, index) => (
+            {questions.map((_, index) => (
               <button
                 key={index}
                 type="button"
@@ -91,9 +148,14 @@ export default function QuizPage() {
             ))}
             <span className="muted small">Jump to any question and your answers stay saved.</span>
           </div>
-          <h2 className="quiz-question">{question.prompt}</h2>
+          {error && (
+            <p className="upload-error small" role="alert">
+              {error}
+            </p>
+          )}
+          <h2 className="quiz-question">{question?.prompt}</h2>
           <div className="quiz-options">
-            {question.options.map((option) => (
+            {question?.options.map((option) => (
               <button
                 key={option}
                 className={`option ${selectedOption === option ? "selected" : ""}`}
@@ -109,7 +171,7 @@ export default function QuizPage() {
             <GradientButton ghost onClick={handlePrevious} disabled={currentQuestion === 0}>
               Previous
             </GradientButton>
-            <GradientButton onClick={handleNext}>
+            <GradientButton onClick={handleNext} disabled={submitting}>
               {isLastQuestion ? "Continue to Profile" : "Next question"}
             </GradientButton>
           </div>
