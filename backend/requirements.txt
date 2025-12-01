@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+google-generativeai
+PyPDF2
+reportlab
+python-multipart
