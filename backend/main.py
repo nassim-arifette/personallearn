@@ -19,24 +19,24 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# Allow the frontend (Next.js/Streamlit) to talk to this API locally without CORS failures.
-_default_origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:8501",
-    "http://127.0.0.1:8501",
-]
-_env_origins = os.getenv("CORS_ALLOW_ORIGINS", "")
-_origins = [origin.strip() for origin in _env_origins.split(",") if origin.strip()] or _default_origins
+# CORS: allow specific origins when provided via ALLOWED_ORIGINS (comma-separated); default open.
+raw_origins = os.getenv("ALLOWED_ORIGINS", "*")
+allowed_origins = [origin.strip().rstrip("/") for origin in raw_origins.split(",") if origin.strip()]
+if not allowed_origins:
+    allowed_origins = ["*"]
+
+# With wildcard origins, disable credentials to satisfy CORS requirements.
+allow_credentials = "*" not in allowed_origins
+if "*" in allowed_origins:
+    allowed_origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_origins,
-    allow_credentials=True,
+    allow_origins=allowed_origins,
+    allow_credentials=allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 
 def compute_profile(score: int, duration_seconds: float) -> ProfileResponse:
