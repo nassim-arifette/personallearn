@@ -1,5 +1,6 @@
 fastapi
 uvicorn[standard]
+google
 google-generativeai
 PyPDF2
 reportlab
