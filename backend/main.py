@@ -1,5 +1,6 @@
 import base64
 import io
+import os
 import re
 from typing import Optional
 
@@ -18,11 +19,21 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# Allow browser preflight requests from any origin (adjust as needed for production).
+# CORS: allow specific origins when provided via ALLOWED_ORIGINS (comma-separated); default open.
+raw_origins = os.getenv("ALLOWED_ORIGINS", "*")
+allowed_origins = [origin.strip().rstrip("/") for origin in raw_origins.split(",") if origin.strip()]
+if not allowed_origins:
+    allowed_origins = ["*"]
+
+# With wildcard origins, disable credentials to satisfy CORS requirements.
+allow_credentials = "*" not in allowed_origins
+if "*" in allowed_origins:
+    allowed_origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=allowed_origins,
+    allow_credentials=allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )

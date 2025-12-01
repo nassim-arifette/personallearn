@@ -1,7 +1,19 @@
 import { quizQuestions as fallbackQuestions, QuizQuestion } from "./content";
 
-const API_BASE =
-  (process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000").replace(/\/$/, "");
+// Resolve backend base URL. In production default to a relative `/api` path that is proxied via
+// Next.js rewrites (see next.config.js). In dev fallback to localhost:8000.
+const API_BASE = (() => {
+  const fromEnv = process.env.NEXT_PUBLIC_API_BASE;
+  if (fromEnv && fromEnv.trim()) {
+    return fromEnv.replace(/\/$/, "");
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    return "/api";
+  }
+
+  return "http://localhost:8000";
+})();
 
 type BackendQuizQuestion = { q: string; options: string[]; correct: string };
 

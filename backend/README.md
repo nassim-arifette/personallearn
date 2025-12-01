@@ -9,7 +9,13 @@ This backend mirrors the Streamlit logic as a reusable API surface.
 
 ## Run
 - Start the API from the repo root: `uvicorn backend.main:app --reload`
+- To allow phones or other devices on your network to reach the API, bind to all interfaces:
+  `uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000`
 - Swagger docs: `http://localhost:8000/docs`
+
+## CORS
+- Set `ALLOWED_ORIGINS` (comma-separated) to the domains that should call the API, e.g.
+  `ALLOWED_ORIGINS=https://personallearn.vercel.app,https://yourcustomdomain.com`
 
 ## Endpoints
 - `GET /health` — liveness probe.
